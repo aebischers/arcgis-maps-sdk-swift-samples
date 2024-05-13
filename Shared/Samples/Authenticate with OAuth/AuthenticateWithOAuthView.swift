@@ -27,7 +27,7 @@ struct AuthenticateWithOAuthView: View {
         // The portal to authenticate with named user.
         let portal = Portal(url: .portal, connection: .authenticated)
         
-        let basemapUrl = URL(string: "https://geo-dev.sbb.ch/site/rest/services/IVEG_PUBLIC/iveg_basemap/MapServer")!
+        let basemapUrl = URL(string: "https://gdi-dev.sbb.ch/site/rest/services/IVEG_PUBLIC/iveg_basemap/MapServer")!
         let tiledLayer = ArcGISTiledLayer(url: basemapUrl)
         let baseMap = Basemap(baseLayer: tiledLayer)
         let map = Map(basemap: baseMap)
@@ -93,7 +93,7 @@ private extension OAuthUserConfiguration {
 private extension URL {
     /// The URL of the portal to authenticate.
     /// - Note: If you want to use your own portal, provide URL here.
-    static let portal = URL(string: "https://geo-dev.sbb.ch/portal")!
+    static let portal = URL(string: "https://gdi-dev.sbb.ch/portal")!
     
     /// The URL for redirecting after a successful authorization.
     /// - Note: You must have the same redirect URL used here registered with your client ID.
@@ -104,7 +104,7 @@ private extension URL {
 private extension String {
     /// A unique identifier associated with an application registered with the portal.
     /// - Note: This identifier is for a public application created by the ArcGIS Maps SDK team.
-    static let clientID = "QBAhR09NhWSZJPPD"
+    static let clientID = "zojZuqErXBHjtnzF"
 }
 
 private extension PortalItem.ID {
