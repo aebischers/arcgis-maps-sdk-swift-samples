@@ -25,7 +25,7 @@
 			<string>Authenticate with OAuth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>my-ags-app</string>
+				<string>ivegdev</string>
 			</array>
 		</dict>
 	</array>

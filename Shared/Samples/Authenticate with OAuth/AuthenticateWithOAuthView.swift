@@ -19,7 +19,7 @@ import ArcGISToolkit
 struct AuthenticateWithOAuthView: View {
     /// The authenticator to handle authentication challenges.
     @StateObject private var authenticator = Authenticator(
-        oAuthUserConfigurations: [.arcgisDotCom]
+        oAuthUserConfigurations: [.sbbOauth]
     )
     
     /// The map to be displayed on the map view.
@@ -27,14 +27,11 @@ struct AuthenticateWithOAuthView: View {
         // The portal to authenticate with named user.
         let portal = Portal(url: .portal, connection: .authenticated)
         
-        // The portal item to be displayed on the map.
-        let portalItem = PortalItem(
-            portal: portal,
-            id: .trafficMap
-        )
-        
-        // Creates map with portal item.
-        return Map(item: portalItem)
+        let basemapUrl = URL(string: "https://geo-dev.sbb.ch/site/rest/services/IVEG_PUBLIC/iveg_basemap/MapServer")!
+        let tiledLayer = ArcGISTiledLayer(url: basemapUrl)
+        let baseMap = Basemap(baseLayer: tiledLayer)
+        let map = Map(basemap: baseMap)
+        return map
     }()
     
     var body: some View {
@@ -86,28 +83,28 @@ struct AuthenticateWithOAuthView: View {
 
 private extension OAuthUserConfiguration {
     /// The configuration of the application registered on ArcGIS Online.
-    static let arcgisDotCom = OAuthUserConfiguration(
-        portalURL: .portal,
-        clientID: .clientID,
-        redirectURL: .redirectURL
+    static let sbbOauth = OAuthUserConfiguration(
+        portalURL: URL.portal,
+        clientID: String.clientID,
+        redirectURL: URL.redirectURL
     )
 }
 
 private extension URL {
     /// The URL of the portal to authenticate.
     /// - Note: If you want to use your own portal, provide URL here.
-    static let portal = URL(string: "https://www.arcgis.com")!
+    static let portal = URL(string: "https://geo-dev.sbb.ch/portal")!
     
     /// The URL for redirecting after a successful authorization.
     /// - Note: You must have the same redirect URL used here registered with your client ID.
     /// The scheme of the redirect URL is also specified in the Info.plist file.
-    static let redirectURL = URL(string: "my-ags-app://auth")!
+    static let redirectURL = URL(string: "ivegdev://oauth")!
 }
 
 private extension String {
     /// A unique identifier associated with an application registered with the portal.
     /// - Note: This identifier is for a public application created by the ArcGIS Maps SDK team.
-    static let clientID = "lgAdHkYZYlwwfAhC"
+    static let clientID = "QBAhR09NhWSZJPPD"
 }
 
 private extension PortalItem.ID {
