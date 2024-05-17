@@ -24,9 +24,6 @@ struct AuthenticateWithOAuthView: View {
     
     /// The map to be displayed on the map view.
     @State private var map: Map = {
-        // The portal to authenticate with named user.
-        let portal = Portal(url: .portal, connection: .authenticated)
-        
         let basemapUrl = URL(string: "https://gdi-dev.sbb.ch/site/rest/services/IVEG_PUBLIC/iveg_basemap/MapServer")!
         let tiledLayer = ArcGISTiledLayer(url: basemapUrl)
         let baseMap = Basemap(baseLayer: tiledLayer)
@@ -35,31 +32,57 @@ struct AuthenticateWithOAuthView: View {
     }()
     
     var body: some View {
-        MapView(map: map)
-            .authenticator(authenticator)
-            .onAppear {
-                // Setting the challenge handlers here in `onAppear` so user is prompted to enter
-                // credentials every time trying the sample. In real world applications, set challenge
-                // handlers at the start of the application.
-                
-                // Sets authenticator as ArcGIS and Network challenge handlers to handle authentication
-                // challenges.
-                ArcGISEnvironment.authenticationManager.handleChallenges(using: authenticator)
-                
-                // In real world applications, uncomment this code to persist credentials in the
-                // keychain and remove `signOut()` from `onDisappear`.
-                // setupPersistentCredentialStorage()
-            }
-            .onDisappear {
-                // Resetting the challenge handlers and clearing credentials here in `onDisappear`
-                // so user is prompted to enter credentials every time trying the sample. In real
-                // world applications, do these from sign out functionality of the application.
-                
-                // Resets challenge handlers.
-                ArcGISEnvironment.authenticationManager.handleChallenges(using: nil)
+        ZStack {
+            MapView(map: map)
+                .authenticator(authenticator)
+                .onAppear {
+                    // Setting the challenge handlers here in `onAppear` so user is prompted to enter
+                    // credentials every time trying the sample. In real world applications, set challenge
+                    // handlers at the start of the application.
+                    
+                    // Sets authenticator as ArcGIS and Network challenge handlers to handle authentication
+                    // challenges.
+                    ArcGISEnvironment.authenticationManager.handleChallenges(using: authenticator)
+                    
+                    // In real world applications, uncomment this code to persist credentials in the
+                    // keychain and remove `signOut()` from `onDisappear`.
+                    // setupPersistentCredentialStorage()
+                }
+                .onDisappear {
+                    // Resetting the challenge handlers and clearing credentials here in `onDisappear`
+                    // so user is prompted to enter credentials every time trying the sample. In real
+                    // world applications, do these from sign out functionality of the application.
+                    
+                    // Resets challenge handlers.
+                    ArcGISEnvironment.authenticationManager.handleChallenges(using: nil)
 
-                signOut()
+                    signOut()
+                }
+            VStack {
+                Button(action: {
+                    loadPortal()
+                }, label: {
+                    Text("Load Portal")
+                })
+                Spacer()
             }
+        }
+    }
+    
+    func loadPortal() {
+        Task {
+            do {
+                let portal = Portal(url: .portal, connection: .authenticated)
+                try await portal.load()
+                if let user = portal.user {
+                    print("username: \(user.username)")
+                    print("fullname: \(user.fullName)")
+                    print("user groups: \(user.groups.count)")
+                }
+            } catch {
+                print(error)
+            }
+        }
     }
     
     /// Signs out from the portal by revoking OAuth tokens and clearing credential stores.
